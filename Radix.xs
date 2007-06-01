@@ -233,7 +233,7 @@ resort_as_keys(pTHX_ SV **data, SV **dest, unsigned char *start, unsigned char *
 }
 
 inline static void
-uv_to_key(pTHX_ int uv, unsigned char *key, int *byte) {
+uv_to_key(pTHX_ UV uv, unsigned char *key, int *byte) {
     int i;
     for (i = sizeof(UV) - 1; i >= 0; i--) {
         unsigned char uc = (uv >> (8 * i));

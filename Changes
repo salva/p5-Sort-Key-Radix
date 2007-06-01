@@ -1,5 +1,9 @@
 Revision history for Perl extension Sort::Key::Radix.
 
+0.02  Jun 2, 2007
+        - corrected bug on 32 bit platforms with perl compiled with
+          64 bit integer support.
+
 0.01  Sun May 27 18:47:00 2007
 	- original version; created by h2xs 1.23 with options
 		-An Sort::Key::Radix
