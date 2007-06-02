@@ -1,5 +1,9 @@
 Revision history for Perl extension Sort::Key::Radix.
 
+0.03  Jun 2, 2007
+        - corrected another 64bits integers in 32bits platform bug
+        - better float keys handling
+
 0.02  Jun 2, 2007
         - corrected bug on 32 bit platforms with perl compiled with
           64 bit integer support.

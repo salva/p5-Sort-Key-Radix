@@ -250,7 +250,7 @@ sv_uv_to_key(pTHX_ SV *uv, unsigned char *key, int klen, int *byte) {
 
 static void
 sv_iv_to_key(pTHX_ SV *iv, unsigned char *key, int klen, int *byte) {
-    uv_to_key(aTHX_ SvIV(iv) + (1 << (8 * sizeof(IV) - 1)), key, byte);
+    uv_to_key(aTHX_ SvIV(iv) + (((UV)1) << (8 * sizeof(IV) - 1)), key, byte);
 }
 
 static void
@@ -260,43 +260,15 @@ sv_ruv_to_key(pTHX_ SV *uv, unsigned char *key, int klen, int *byte) {
 
 static void
 sv_riv_to_key(pTHX_ SV *iv, unsigned char *key, int klen, int *byte) {
-    uv_to_key(aTHX_ ~(UV)(SvIV(iv) + (1 << (8 * sizeof(IV) - 1))), key, byte);
-}
-
-static UV
-sv_float_to_uv(pTHX_ SV *nv) {
-    if (sizeof(float) == 4) {
-        float f;
-        U32 uv;
-        f = SvNV(nv);
-        uv = *((U32*)&f);
-        if (uv & 0x80000000)
-            return ~uv ^ 0xffffffff;
-        else
-            return uv | 0x80000000;
-    }
-    else {
-        Perl_croak(aTHX_ "Your C compiler floats are not 32 bits in size");
-    }
-}
-
-static void
-sv_float_to_key(pTHX_ SV *nv, unsigned char *key, int klen, int *byte) {
-    uv_to_key(aTHX_ sv_float_to_uv(aTHX_ nv), key, byte);
-}
-
-static void
-sv_rfloat_to_key(pTHX_ SV *nv, unsigned char *key, int klen, int *byte) {
-    uv_to_key(aTHX_ ~sv_float_to_uv(aTHX_ nv), key, byte);
+    uv_to_key(aTHX_ ~(UV)(SvIV(iv) + (((UV)1) << (8 * sizeof(IV) - 1))), key, byte);
 }
 
 static void
 nv_to_key(pTHX_ NV nv, unsigned char *key, int klen, int *byte) {
+#if defined(NV_FORMAT_8LE) || defined(NV_FORMAT_8BE)
     int i;
-#if defined(NV_FORMAT_8LE)
     *((NV *)key) = nv;
-#elif defined(NV_FORMAT_8BE)
-    *((NV *)key) = nv;
+#if defined(NV_FORMAT_8BE)
     for (i = 0; i < 4; i++) {
         unsigned char tmp;
         tmp = key[i];
@@ -304,7 +276,6 @@ nv_to_key(pTHX_ NV nv, unsigned char *key, int klen, int *byte) {
         key[7 - i] = tmp;
     }
 #endif
-#if defined(NV_FORMAT_8BE) || defined(NV_FORMAT_8LE)
     if (nv >= 0.0)
         key[7] |= 0x80;
     else
@@ -324,6 +295,40 @@ sv_nv_to_key(pTHX_ SV *sv, unsigned char *key, int klen, int *byte) {
 static void
 sv_rnv_to_key(pTHX_ SV *sv, unsigned char *key, int klen, int *byte) {
     nv_to_key(aTHX_ -SvNV(sv), key, klen, byte);
+}
+
+static void
+sf_to_key(pTHX_ float sf, unsigned char *key, int klen, int *byte) {
+#if defined(SF_FORMAT_8LE) || defined(SF_FORMAT_8BE) || defined(SF_FORMAT_4LE) || defined(SF_FORMAT_4BE)
+    int i;
+    *((float *)key) = sf;
+#if defined(SF_FORMAT_8BE) || defined(SF_FORMAT_4BE)
+    for (i = 0; i < (sizeof(float) >> 1); i++) {
+        unsigned char tmp;
+        tmp = key[i];
+        key[i] = key[(sizeof(float) - 1) - i];
+        key[(sizeof(float) - 1) - i] = tmp;
+    }
+#endif
+    if (sf >= 0.0)
+        key[(sizeof(float) - 1] |= 0x80;
+    else
+        for (i = 0; i < sizeof(float); i++)
+            key[i] = ~key[i];
+            *byte = sizeof(float) - 1;
+#else
+    Perl_croak(aTHX_ "Sorting of single floating point keys is not supported on this computer. Please, send a bug report to Sort::Key::Radix author");
+#endif
+}
+
+static void
+sv_sf_to_key(pTHX_ SV *sv, unsigned char *key, int klen, int *byte) {
+    sf_to_key(aTHX_ SvNV(sv), key, klen, byte);
+}
+
+static void
+sv_rsf_to_key(pTHX_ SV *sv, unsigned char *key, int klen, int *byte) {
+    sf_to_key(aTHX_ -SvNV(sv), key, klen, byte);
 }
 
 static void
@@ -387,7 +392,7 @@ radix_sort(pTHX_ IV type, SV *keygen, SV **values, I32 offset, I32 ax, IV n) {
             break;
         case 5:
             klen = sizeof(float);
-            sv_to_key = &sv_float_to_key;
+            sv_to_key = &sv_sf_to_key;
             break;
         case 7:
             klen = 0;
@@ -408,7 +413,7 @@ radix_sort(pTHX_ IV type, SV *keygen, SV **values, I32 offset, I32 ax, IV n) {
             break;
         case 133:
             klen = sizeof(float);
-            sv_to_key = &sv_rfloat_to_key;
+            sv_to_key = &sv_rsf_to_key;
             break;
         case 135:
             klen = 0;
