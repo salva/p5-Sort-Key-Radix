@@ -1,5 +1,8 @@
 Revision history for Perl extension Sort::Key::Radix.
 
+0.04  Jun 2, 2007
+        - pack(F, ...) not supported in Perls before 5.8.x
+
 0.03  Jun 2, 2007
         - corrected another 64bits integers in 32bits platform bug
         - better float keys handling

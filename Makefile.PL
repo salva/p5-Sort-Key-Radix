@@ -25,7 +25,7 @@ my %sf_format = ('b6f3fd3d' => '4LE',
                  '5839b4c876bebf3f' => '8LE',
                  '3fbfbe76c8b43958' => '8BE');
 
-my $pnv = unpack 'H*' => pack F => 0.124;
+my $pnv = unpack 'H*' => pack (($] < 5.008 ? 'd' : 'F') => 0.124);
 my $nv_format = $nv_format{$pnv};
 
 my $psf = unpack 'H*' => pack f => 0.124;
