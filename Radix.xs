@@ -58,7 +58,7 @@ print_blens(pTHX_ int *blens) {
 }
 
 static void
-radix_sort_1(pTHX_ unsigned char **keys, unsigned char **temps, int n, int byte) {
+radix_sort_1(unsigned char **keys, unsigned char **temps, int n, int byte) {
     
     /* byte must be equal or greater than 0! */
     assert (byte >= 0);
@@ -87,7 +87,7 @@ radix_sort_1(pTHX_ unsigned char **keys, unsigned char **temps, int n, int byte)
             for (i = 0; i < 256; i++) {
                 int bli = blen[i];
                 if (bli) {
-                    radix_sort_1(aTHX_ temps, keys, bli, byte);
+                    radix_sort_1(temps, keys, bli, byte);
                     keys += bli;
                     temps += bli;
                 }
@@ -242,6 +242,11 @@ resort_as_keys(pTHX_ SV **data, SV **dest, unsigned char *start, unsigned char *
 
 inline static void
 uv_to_key(pTHX_ UV uv, unsigned char *key, int *byte) {
+#if UV_FORMAT == LE4 || UV_FORMAT == LE8
+    *((UV*)key) = uv;
+    while (uv_byte_mask[*byte] & uv)
+        (*byte)++;
+#else
     int i;
     for (i = sizeof(UV) - 1; i >= 0; i--) {
         unsigned char uc = (uv >> (8 * i));
@@ -249,26 +254,55 @@ uv_to_key(pTHX_ UV uv, unsigned char *key, int *byte) {
         if (uc && i > *byte)
             *byte = i;
     }
+#endif
 }
 
 static void
-sv_uv_to_key(pTHX_ SV *uv, unsigned char *key, int klen, int *byte) {
-    uv_to_key(aTHX_ SvUV(uv), key, byte);
+sv_uv_to_key(pTHX_ SV *sv, unsigned char *key, int klen, int *byte) {
+#if UV_FORMAT == LE4 || UV_FORMAT == LE8
+    UV uv = SvUV(sv);
+    *((UV*)key) = uv;
+    while (uv_byte_mask[*byte] & uv)
+        (*byte)++;
+#else
+    uv_to_key(aTHX_ SvUV(sv), key, byte);
+#endif
+}
+
+static void
+sv_ruv_to_key(pTHX_ SV *sv, unsigned char *key, int klen, int *byte) {
+#if UV_FORMAT == LE4 || UV_FORMAT == LE8
+    UV uv = ~SvUV(sv);
+    *((UV*)key) = uv;
+    while (uv_byte_mask[*byte] & uv)
+        (*byte)++;
+#else
+    uv_to_key(aTHX_ ~SvUV(sv), key, byte);
+#endif
 }
 
 static void
 sv_iv_to_key(pTHX_ SV *iv, unsigned char *key, int klen, int *byte) {
+#if UV_FORMAT == LE4 || UV_FORMAT == LE8
+    UV uv = SvIV(iv) + (((UV)1) << (8 * sizeof(IV) - 1));
+    *((UV*)key) = uv;
+    while (uv_byte_mask[*byte] & uv)
+        (*byte)++;
+#else
     uv_to_key(aTHX_ SvIV(iv) + (((UV)1) << (8 * sizeof(IV) - 1)), key, byte);
-}
-
-static void
-sv_ruv_to_key(pTHX_ SV *uv, unsigned char *key, int klen, int *byte) {
-    uv_to_key(aTHX_ ~SvUV(uv), key, byte);
+#endif
 }
 
 static void
 sv_riv_to_key(pTHX_ SV *iv, unsigned char *key, int klen, int *byte) {
+#if UV_FORMAT == LE4 || UV_FORMAT == LE8
+    UV uv = ~(UV)(SvIV(iv) + (((UV)1) << (8 * sizeof(IV) - 1)));
+    *((UV*)key) = uv;
+    while (uv_byte_mask[*byte] & uv)
+        (*byte)++;
+#else
     uv_to_key(aTHX_ ~(UV)(SvIV(iv) + (((UV)1) << (8 * sizeof(IV) - 1))), key, byte);
+#endif
 }
 
 static void
@@ -456,7 +490,7 @@ radix_sort(pTHX_ IV type, SV *keygen, SV **values, I32 offset, I32 ax, IV n) {
         if (byte >= 0) {
             SPAGAIN;
             /* printf("byte: %d\n", byte); */
-            radix_sort_1(aTHX_ keys, temps, n, byte);
+            radix_sort_1(keys, temps, n, byte);
             
             if (values)
                 resort_as_keys(aTHX_
@@ -475,7 +509,7 @@ radix_sort(pTHX_ IV type, SV *keygen, SV **values, I32 offset, I32 ax, IV n) {
 MODULE = Sort::Key::Radix		PACKAGE = Sort::Key::Radix		
 
 void
-_sort_fix(...)
+_sort(...)
 ALIAS:
     nsort = 2
     isort = 3
@@ -493,7 +527,7 @@ PPCODE:
     XSRETURN(items);
 
 void
-_sort_inplace_fix(AV *values)
+_sort_inplace(AV *values)
 PROTOTYPE: \@
 PREINIT:
     AV *magic_values = 0;
@@ -540,7 +574,7 @@ CODE:
     }
 
 void
-_keysort_fixed(SV *keygen, ...)
+_keysort(SV *keygen, ...)
 PROTOTYPE: &@
 ALIAS:
     nkeysort = 2
@@ -560,7 +594,7 @@ PPCODE:
 
 
 void
-_keysort_inplace_fix(SV *keygen, AV *values)
+_keysort_inplace(SV *keygen, AV *values)
 PROTOTYPE: &\@
 PREINIT:
     AV *magic_values = 0;

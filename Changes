@@ -1,5 +1,8 @@
 Revision history for Perl extension Sort::Key::Radix.
 
+0.06  Jun 4, 2007
+        - some Valgrind profiling and optimizations
+
 0.05  Jun 4, 2007
         - write configuration to rconfig.h
         - print native float formats in "unsupported" error messages

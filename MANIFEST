@@ -8,6 +8,7 @@ README
 samples/bench.pl
 samples/ipv4_bench.pl
 samples/profile.pl
+samples/nprofile.pl
 samples/rs.pl
 samples/sbench.pl
 samples/nbench.pl

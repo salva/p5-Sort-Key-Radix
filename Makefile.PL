@@ -4,27 +4,37 @@ use ExtUtils::MakeMaker;
 use strict;
 use warnings;
 
+use Config;
+
 open my $ch, ">", "rconfig.h"
     or die "unable to create config.h";
 
 my %nv_format = ('5839b4c876bebf3f' => 'LE8',
                  '3fbfbe76c8b43958' => 'BE8');
 
+my $pnv = eval { unpack 'H*' => pack (($] < 5.008 ? 'd' : 'F') => 0.124) };
+my $nv_format = $nv_format{$pnv};
+
 my %sf_format = ('b6f3fd3d' => 'LE4',
                  '3dfdf3b6' => 'BE4',
                  '5839b4c876bebf3f' => 'LE8',
                  '3fbfbe76c8b43958' => 'BE8');
 
-my $pnv = unpack 'H*' => pack (($] < 5.008 ? 'd' : 'F') => 0.124);
-my $nv_format = $nv_format{$pnv};
-
-my $psf = unpack 'H*' => pack f => 0.124;
+my $psf = eval {unpack 'H*' => pack f => 0.124 };
 my $sf_format = $sf_format{$psf};
 
+my %uv_format = ('01020304' => 'BE4',
+                 '04030201' => 'LE4',
+                 '0000000001020304' => 'BE8',
+                 '0403020100000000' => 'LE4');
+
+my $puv = eval { unpack 'H*' => pack (($] < 5.008 ? 'L!' : 'J') => 0x01020304) };
+my $uv_format = $uv_format{$puv};
 
 print $ch <<EOD;
 #define NV_0124 "$pnv"
 #define SF_0124 "$psf"
+#define UV_01020304 "$puv"
 EOD
 
 if (defined $nv_format) {
@@ -34,6 +44,22 @@ if (defined $nv_format) {
 if (defined $sf_format) {
     print $ch "#define SF_FORMAT $sf_format\n";
 }
+
+if (defined $uv_format) {
+    print $ch "#define UV_FORMAT $uv_format\n";
+}
+
+my $uvsize = $Config::Config{uvsize};
+
+print $ch "static UV uv_byte_mask[] = {\n";
+
+for my $i (1..$uvsize+1) {
+    print $ch "    0x", ('ff' x ($uvsize - $i)), ('00' x $i), ",\n";
+}
+
+print $ch "};\n";
+
+close $ch;
 
 unless ($nv_format and $sf_format) {
 warn <<EOM;
@@ -58,4 +84,5 @@ WriteMakefile( NAME              => 'Sort::Key::Radix',
                # OPTIMIZE => '-O0 -g'
                # OPTIMIZE => '-pg'
                # OPTIMIZE => '-O3'
+               # OPTIMIZE => '-O2 -g'
              );

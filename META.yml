@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Sort-Key-Radix
-version:             0.05
+version:             0.06
 abstract:            Radix sort implementation in XS
 license:             ~
 generated_by:        ExtUtils::MakeMaker version 6.32
