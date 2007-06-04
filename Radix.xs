@@ -8,6 +8,13 @@
 
 #include "ppport.h"
 
+#define BE4 1
+#define LE4 2
+#define BE8 3
+#define LE8 4
+
+#include "rconfig.h"
+
 #define CUTOFF 16
 
 #ifdef inline
@@ -19,6 +26,7 @@
 #else
 #define inline
 #endif
+
 
 static void
 print_keys(pTHX_ char *name, unsigned char **keys, int n, int byte) {
@@ -265,10 +273,10 @@ sv_riv_to_key(pTHX_ SV *iv, unsigned char *key, int klen, int *byte) {
 
 static void
 nv_to_key(pTHX_ NV nv, unsigned char *key, int klen, int *byte) {
-#if defined(NV_FORMAT_8LE) || defined(NV_FORMAT_8BE)
+#if defined(NV_FORMAT)
     int i;
     *((NV *)key) = nv;
-#if defined(NV_FORMAT_8BE)
+#if NV_FORMAT == BE8
     for (i = 0; i < 4; i++) {
         unsigned char tmp;
         tmp = key[i];
@@ -283,7 +291,7 @@ nv_to_key(pTHX_ NV nv, unsigned char *key, int klen, int *byte) {
             key[i] = ~key[i];
     *byte = 7;
 #else
-    Perl_croak(aTHX_ "Sorting of floating point keys is not supported on this computer. Please, send a bug report to Sort::Key::Radix author");
+    Perl_croak(aTHX_ "Sorting of floating point keys is not supported on this computer. Please, send a bug report to Sort::Key::Radix author (0.124 => " NV_0124 ")");
 #endif
 }
 
@@ -299,10 +307,10 @@ sv_rnv_to_key(pTHX_ SV *sv, unsigned char *key, int klen, int *byte) {
 
 static void
 sf_to_key(pTHX_ float sf, unsigned char *key, int klen, int *byte) {
-#if defined(SF_FORMAT_8LE) || defined(SF_FORMAT_8BE) || defined(SF_FORMAT_4LE) || defined(SF_FORMAT_4BE)
+#if defined(SF_FORMAT)
     int i;
     *((float *)key) = sf;
-#if defined(SF_FORMAT_8BE) || defined(SF_FORMAT_4BE)
+#if SF_FORMAT == BE8 || SF_FORMAT == BE4
     for (i = 0; i < (sizeof(float) >> 1); i++) {
         unsigned char tmp;
         tmp = key[i];
@@ -311,13 +319,13 @@ sf_to_key(pTHX_ float sf, unsigned char *key, int klen, int *byte) {
     }
 #endif
     if (sf >= 0.0)
-        key[(sizeof(float) - 1] |= 0x80;
+        key[sizeof(float) - 1] |= 0x80;
     else
         for (i = 0; i < sizeof(float); i++)
             key[i] = ~key[i];
             *byte = sizeof(float) - 1;
 #else
-    Perl_croak(aTHX_ "Sorting of single floating point keys is not supported on this computer. Please, send a bug report to Sort::Key::Radix author");
+            Perl_croak(aTHX_ "Sorting of single floating point keys is not supported on this computer. Please, send a bug report to Sort::Key::Radix author  (0.124 => " SF_0124 ")");
 #endif
 }
 

@@ -1,5 +1,12 @@
 Revision history for Perl extension Sort::Key::Radix.
 
+0.05  Jun 4, 2007
+        - write configuration to rconfig.h
+        - print native float formats in "unsupported" error messages
+        - missing typemaps for perls 5.6.x added
+        - bug corrected in numbers.t
+        - some doc misspellings
+
 0.04  Jun 2, 2007
         - pack(F, ...) not supported in Perls before 5.8.x
 

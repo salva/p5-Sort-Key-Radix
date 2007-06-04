@@ -1,6 +1,6 @@
 package Sort::Key::Radix;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use strict;
 use warnings;
@@ -60,11 +60,11 @@ Sort::Key::Radix - Radix sort implementation in XS
 =head1 DESCRIPTION
 
 This module reimplements some of the funcions in the L<Sort::Key>
-module using a Radix Sort as the sorting algorithm.
+module using a Radix sort as the sorting algorithm.
 
 For some kinds of data (for instance large data sets of small
 integers, postal codes, logins, serial numbers, dates, etc.) it can be
-faster than the Mergesort algorithm used interenally by Perl and by
+faster than the Merge sort algorithm used internally by Perl and by
 L<Sort::Key>.
 
 =head2 FUNCTIONS
