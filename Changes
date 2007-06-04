@@ -1,5 +1,8 @@
 Revision history for Perl extension Sort::Key::Radix.
 
+0.09  Jun 5, 2007
+	- long doubles in x86 are really 10bytes long
+
 0.08  Jun 4, 2007
         - NVs LE12 entry was missing in Makefile.PL
 

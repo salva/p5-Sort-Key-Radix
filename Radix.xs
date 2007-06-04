@@ -14,6 +14,7 @@
 #define LE8 4
 #define LE12 5
 #define BE12 6
+#define LE12_x86 7
 
 #include "rconfig.h"
 
@@ -307,25 +308,31 @@ sv_riv_to_key(pTHX_ SV *iv, unsigned char *key, int klen, int *byte) {
 #endif
 }
 
+#if NV_FORMAT == LE12_x86
+#define NVBYTE1 10
+#else
+#define NVBYTE1 (sizeof(NV))
+#endif
+
 static void
 nv_to_key(pTHX_ NV nv, unsigned char *key, int klen, int *byte) {
 #if defined(NV_FORMAT)
     int i;
     *((NV *)key) = nv;
-#if NV_FORMAT == BE8
-    for (i = 0; i < (sizeof(NV) / 2); i++) {
+#if NV_FORMAT == BE8 || NV_FORMAT == BE12
+    for (i = 0; i < (NVBYTE1 / 2); i++) {
         unsigned char tmp;
         tmp = key[i];
-        key[i] = key[(sizeof(NV) - 1) - i];
-        key[(sizeof(NV) - 1) - i] = tmp;
+        key[i] = key[(NVBYTE1 - 1) - i];
+        key[(NVBYTE1 - 1) - i] = tmp;
     }
 #endif
     if (nv >= 0.0)
-        key[sizeof(NV) - 1] |= 0x80;
+        key[NVBYTE1 - 1] |= 0x80;
     else
-        for (i = 0; i < sizeof(NV); i++)
+        for (i = 0; i < NVBYTE1; i++)
             key[i] = ~key[i];
-    *byte = sizeof(NV) - 1;
+    *byte = NVBYTE1 - 1;
 #else
     Perl_croak(aTHX_ "Sorting of floating point keys is not supported on this computer. Please, send a bug report to Sort::Key::Radix author (0.124 => " NV_0124 ")");
 #endif
