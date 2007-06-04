@@ -1,5 +1,8 @@
 Revision history for Perl extension Sort::Key::Radix.
 
+0.07  Jun 4, 2007
+        - support perls compiled with lond double NVs on x86
+
 0.06  Jun 4, 2007
         - some Valgrind profiling and optimizations
 

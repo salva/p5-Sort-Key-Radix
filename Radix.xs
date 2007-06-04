@@ -12,6 +12,8 @@
 #define LE4 2
 #define BE8 3
 #define LE8 4
+#define LE12 5
+#define BE12 6
 
 #include "rconfig.h"
 
@@ -311,19 +313,19 @@ nv_to_key(pTHX_ NV nv, unsigned char *key, int klen, int *byte) {
     int i;
     *((NV *)key) = nv;
 #if NV_FORMAT == BE8
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < (sizeof(NV) / 2); i++) {
         unsigned char tmp;
         tmp = key[i];
-        key[i] = key[7 - i];
-        key[7 - i] = tmp;
+        key[i] = key[(sizeof(NV) - 1) - i];
+        key[(sizeof(NV) - 1) - i] = tmp;
     }
 #endif
     if (nv >= 0.0)
-        key[7] |= 0x80;
+        key[sizeof(NV) - 1] |= 0x80;
     else
-        for (i = 0; i < 8; i++)
+        for (i = 0; i < sizeof(NV); i++)
             key[i] = ~key[i];
-    *byte = 7;
+    *byte = sizeof(NV) - 1;
 #else
     Perl_croak(aTHX_ "Sorting of floating point keys is not supported on this computer. Please, send a bug report to Sort::Key::Radix author (0.124 => " NV_0124 ")");
 #endif

@@ -1,6 +1,6 @@
 package Sort::Key::Radix;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 use strict;
 use warnings;
