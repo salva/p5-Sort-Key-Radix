@@ -1,5 +1,8 @@
 Revision history for Perl extension Sort::Key::Radix.
 
+0.08  Jun 4, 2007
+        - NVs LE12 entry was missing in Makefile.PL
+
 0.07  Jun 4, 2007
         - support perls compiled with lond double NVs on x86
 

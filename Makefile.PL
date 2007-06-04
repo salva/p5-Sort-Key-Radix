@@ -10,7 +10,8 @@ open my $ch, ">", "rconfig.h"
     or die "unable to create config.h";
 
 my %nv_format = ('5839b4c876bebf3f' => 'LE8',
-                 '3fbfbe76c8b43958' => 'BE8');
+                 '3fbfbe76c8b43958' => 'BE8',
+                 '83c0caa145b6f3fdfb3f0000' => 'LE12' );
 
 my $pnv = eval { unpack 'H*' => pack (($] < 5.008 ? 'd' : 'F') => 0.124) };
 my $nv_format = $nv_format{$pnv};
