@@ -52,10 +52,12 @@ if (defined $uv_format) {
 
 my $uvsize = $Config::Config{uvsize};
 
+my $uvsuffix = $Config::Config{uvtype} eq "unsigned long long" ? 'ull' : 'ul';
+
 print $ch "static UV uv_byte_mask[] = {\n";
 
-for my $i (1..$uvsize+1) {
-    print $ch "    0x", ('ff' x ($uvsize - $i)), ('00' x $i), ",\n";
+for my $i (1..$uvsize) {
+    print $ch "    0x", ('ff' x ($uvsize - $i)), ('00' x $i), "$uvsuffix, /* next byte: $i */\n";
 }
 
 print $ch "};\n";

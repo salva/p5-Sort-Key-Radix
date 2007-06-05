@@ -1,5 +1,8 @@
 Revision history for Perl extension Sort::Key::Radix.
 
+0.10  Jun 5, 2007
+        - remove warnings on systems where UVs are unsigned long long
+
 0.09  Jun 5, 2007
 	- long doubles in x86 are really 10bytes long
 
