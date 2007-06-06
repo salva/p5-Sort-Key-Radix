@@ -64,7 +64,7 @@ static void
 radix_sort_1(unsigned char **keys, unsigned char **temps, int n, int byte) {
     
     /* byte must be equal or greater than 0! */
-    assert (byte >= 0);
+    /* assert (byte >= 0); */
 
     if (n > CUTOFF) {
         unsigned char **bucket[256];
