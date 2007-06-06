@@ -15,6 +15,8 @@
 #define LE12 5
 #define BE12 6
 #define LE12_x86 7
+#define BE16 9
+#define LE16 10
 
 #include "rconfig.h"
 
@@ -319,7 +321,7 @@ nv_to_key(pTHX_ NV nv, unsigned char *key, int klen, int *byte) {
 #if defined(NV_FORMAT)
     int i;
     *((NV *)key) = nv;
-#if NV_FORMAT == BE8 || NV_FORMAT == BE12
+#if NV_FORMAT == BE8 || NV_FORMAT == BE12 || NV_FORMAT == BE16
     for (i = 0; i < (NVBYTE1 / 2); i++) {
         unsigned char tmp;
         tmp = key[i];
@@ -353,7 +355,7 @@ sf_to_key(pTHX_ float sf, unsigned char *key, int klen, int *byte) {
 #if defined(SF_FORMAT)
     int i;
     *((float *)key) = sf;
-#if SF_FORMAT == BE8 || SF_FORMAT == BE4
+#if SF_FORMAT == BE8 || SF_FORMAT == BE4 || SF_FORMAT == BE12 || SF_FORMAT == BE16
     for (i = 0; i < (sizeof(float) >> 1); i++) {
         unsigned char tmp;
         tmp = key[i];

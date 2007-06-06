@@ -1,5 +1,9 @@
 Revision history for Perl extension Sort::Key::Radix.
 
+0.12  Jum 7, 2007
+	- Add support for 16 bytes NV (as when using long doubles on
+	  Sparc)
+
 0.11  Jun 6, 2007
         - Perl redefines assert and could require perl context in
           scope => remove assertions.
