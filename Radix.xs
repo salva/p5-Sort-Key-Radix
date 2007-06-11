@@ -17,6 +17,7 @@
 #define LE12_x86 7
 #define BE16 9
 #define LE16 10
+#define LE16_x86 11
 
 #include "rconfig.h"
 
@@ -310,7 +311,7 @@ sv_riv_to_key(pTHX_ SV *iv, unsigned char *key, int klen, int *byte) {
 #endif
 }
 
-#if NV_FORMAT == LE12_x86
+#if NV_FORMAT == LE12_x86 || NV_FORMAT == LE16_x86
 #define NVBYTE1 10
 #else
 #define NVBYTE1 (sizeof(NV))

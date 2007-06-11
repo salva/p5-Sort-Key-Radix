@@ -1,6 +1,9 @@
 Revision history for Perl extension Sort::Key::Radix.
 
-0.12  Jum 7, 2007
+0.13  Jun 11, 2007
+        - Add support for 16 bytes NVs on x86_64
+
+0.12  Jun 7, 2007
 	- Add support for 16 bytes NV (as when using long doubles on
 	  Sparc)
 

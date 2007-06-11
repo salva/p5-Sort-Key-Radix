@@ -14,7 +14,7 @@ my %nv_format = ('5839b4c876bebf3f' => 'LE8',
                  '83c0caa145b6f3fdfb3f0000' => 'LE12_x86',
 		 '3ffbfbe76c8b4395810624dd2f1a9fbe' => 'BE16',
 		 'be9f1a2fdd24068195438b6ce7fbfb3f' => 'LE16',
- );
+                 '83c0caa145b6f3fdfb3f000000000000' => 'LE16_x86');
 
 my $pnv = eval { unpack 'H*' => pack (($] < 5.008 ? 'd' : 'F') => 0.124) };
 my $nv_format = $nv_format{$pnv};
