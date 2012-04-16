@@ -37,7 +37,7 @@
 static void
 print_keys(pTHX_ char *name, unsigned char **keys, int n, int byte) {
     int i;
-    printf("%s[%d] %x:", name, byte, keys);
+    printf("%s[%d] %p:", name, byte, keys);
     for (i = 0; i < n; i++) {
         int j;
         UV acu = 0;
@@ -486,7 +486,7 @@ radix_sort(pTHX_ IV type, SV *keygen, SV **values, I32 offset, I32 ax, IV n) {
             klen = (*calc_klen)(aTHX_ svkeys, offset, ax, n);
             if (klen) {
                 start = init_keys(aTHX_
-                                  svkeys, offset, ax, n, keygen,
+                                  svkeys, offset, ax, n, NULL,
                                   sv_to_key, &keys, &temps, klen, &byte);
 
                 /* if (n) print_keys("subkeys", keys, n, byte); */

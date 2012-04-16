@@ -1,6 +1,6 @@
 package Sort::Key::Radix;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 use strict;
 use warnings;
@@ -113,7 +113,7 @@ at L<http://rt.cpan.org> to report it!
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2007 by Salvador FandiE<ntilde>o (sfandino@yahoo.com).
+Copyright (C) 2007, 2012 by Salvador FandiE<ntilde>o (sfandino@yahoo.com).
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.8 or,
